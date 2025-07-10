@@ -3,45 +3,190 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>捐血活動即時叫號</title>
+    <title>茂達電子-捐血活動即時叫號</title>
     <style>
-        html, body { height: 100%; margin: 0; padding: 0; }
-        body { display: flex; justify-content: center; align-items: center; background-color: #f0f8ff; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
-        .container { text-align: center; padding: 40px 50px; background-color: white; border-radius: 15px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
-        h1 { font-size: 2.5em; color: #333; margin: 0 0 20px 0; }
-        #number-display { font-size: 8em; font-weight: bold; color: #d9232d; min-height: 1.2em; line-height: 1.2; }
-        p { font-size: 1em; color: #666; margin: 20px 0 0 0; }
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
+
+        :root {
+            --primary-color: #005a9e; /* 茂達Logo藍色 (近似) */
+            --accent-color: #d9232d;  /* 捐血紅色 */
+            --text-color: #333;
+            --light-gray: #f4f7f9;
+            --border-color: #e0e0e0;
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-color: var(--light-gray);
+            font-family: 'Noto Sans TC', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .main-container {
+            width: 90%;
+            max-width: 480px;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.12);
+            padding: 30px 40px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 25px;
+        }
+
+        header svg {
+            width: 40px;
+            height: 40px;
+            color: var(--primary-color);
+        }
+
+        header h1 {
+            font-size: 1.8em;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .status-panel h2 {
+            font-size: 1.2em;
+            color: var(--text-color);
+            margin: 0 0 10px 0;
+        }
+
+        #number-display {
+            font-size: 7em;
+            font-weight: 700;
+            color: var(--accent-color);
+            line-height: 1.1;
+            margin-bottom: 20px;
+            transition: color 0.3s ease;
+        }
+
+        #number-display.small-text {
+            font-size: 2.5em; /* 狀態文字使用較小字體 */
+            color: #555;
+        }
+        
+        .info-panel {
+            background-color: var(--light-gray);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 25px;
+            text-align: left;
+        }
+
+        .info-panel p {
+            margin: 8px 0;
+            font-size: 0.95em;
+            color: #555;
+        }
+        
+        .info-panel strong {
+            color: var(--text-color);
+        }
+
+        footer {
+            margin-top: 20px;
+            font-size: 0.85em;
+            color: #888;
+        }
+
+        @media (max-width: 480px) {
+            .main-container {
+                padding: 25px 20px;
+            }
+            header h1 {
+                font-size: 1.5em;
+            }
+            #number-display {
+                font-size: 6em;
+            }
+            #number-display.small-text {
+                font-size: 2em;
+            }
+        }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>目前叫號</h1>
-        <div id="number-display">讀取中...</div>
-        <p>本頁面每 10 秒自動更新</p>
+    <div class="main-container">
+        <header>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-6 h-6">
+                <path fill-rule="evenodd" d="M12 2.25c-5.385 0-9.75 4.365-9.75 9.75s4.365 9.75 9.75 9.75 9.75-4.365 9.75-9.75S17.385 2.25 12 2.25zM12.75 6a.75.75 0 00-1.5 0v6c0 .414.336.75.75.75h4.5a.75.75 0 000-1.5h-3.75V6z" clip-rule="evenodd" />
+            </svg>
+            <h1>茂達電子 捐血活動</h1>
+        </header>
+
+        <div class="status-panel">
+            <h2>目前叫號</h2>
+            <div id="number-display">讀取中...</div>
+        </div>
+        
+        <div class="info-panel">
+            <p><strong>📅 日期：</strong> 2025年 07月 24日 (四)</p>
+            <p><strong>⏰ 時間：</strong> 10:00 - 16:00</p>
+            <p><strong>📍 地點：</strong> 公司一樓大廳外</p>
+            <p><strong>主办：</strong> 茂達電子 福委會</p>
+        </div>
+
+        <footer>
+            <p>最後更新時間：<span id="last-updated">尚未更新</span></p>
+        </footer>
     </div>
 
     <script>
         const numberDisplay = document.getElementById('number-display');
-        const dataUrl = 'number.json'; // 我們要讀取的檔案
+        const lastUpdated = document.getElementById('last-updated');
+        const dataUrl = 'number.json';
 
         function fetchNumber() {
-            // 發出請求抓取 number.json 的內容
-            // { cache: 'no-cache' } 是關鍵！它會強制瀏覽器每次都抓最新的檔案，避免看到舊號碼
             fetch(dataUrl, { cache: 'no-cache' })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) throw new Error('Network response was not ok');
+                    return response.json();
+                })
                 .then(data => {
-                    numberDisplay.textContent = data.currentNumber;
+                    const number = data.currentNumber;
+                    
+                    // 智慧狀態判斷
+                    if (isNaN(number) || number === null || number === "") { // 如果是文字
+                        numberDisplay.textContent = number;
+                        numberDisplay.classList.add('small-text');
+                    } else if (number == 0) { // 如果是數字 0
+                        numberDisplay.textContent = "活動尚未開始";
+                        numberDisplay.classList.add('small-text');
+                    } else { // 如果是正常數字
+                        numberDisplay.textContent = number;
+                        numberDisplay.classList.remove('small-text');
+                    }
+                    
+                    // 更新時間戳
+                    lastUpdated.textContent = new Date().toLocaleTimeString('zh-TW');
                 })
                 .catch(error => {
                     console.error('讀取號碼失敗:', error);
-                    numberDisplay.textContent = '錯誤';
+                    numberDisplay.textContent = '讀取失敗';
+                    numberDisplay.classList.add('small-text');
+                    lastUpdated.textContent = '更新失敗';
                 });
         }
 
         // 網頁載入後馬上執行一次
         fetchNumber();
         // 然後設定每 10 秒執行一次
-        setInterval(fetchNumber, 10000); // 10000毫秒 = 10秒
+        setInterval(fetchNumber, 10000);
     </script>
 </body>
 </html>
