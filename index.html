@@ -8,8 +8,8 @@
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
 
         :root {
-            --primary-color: #005a9e; /* 茂達Logo藍色 (近似) */
-            --accent-color: #d9232d;  /* 捐血紅色 */
+            --primary-color: #005a9e;
+            --accent-color: #d9232d; 
             --text-color: #333;
             --light-gray: #f4f7f9;
             --border-color: #e0e0e0;
@@ -76,7 +76,7 @@
         }
 
         #number-display.small-text {
-            font-size: 2.5em; /* 狀態文字使用較小字體 */
+            font-size: 2.5em; 
             color: #555;
         }
         
@@ -86,14 +86,14 @@
             padding: 15px;
             margin-top: 25px;
             text-align: left;
-            min-width: 200px; /* 確保容器有足夠寬度 */
+            min-width: 200px; 
         }
 
         .info-panel p {
             margin: 8px 0;
             font-size: 0.95em;
             color: #555;
-            white-space: nowrap; /* 防止文字換行 */
+            white-space: nowrap; 
         }
         
         .info-panel strong {
@@ -120,11 +120,11 @@
                 font-size: 2em;
             }
             .info-panel {
-                min-width: 20; /* 在小螢幕上移除最小寬度限制 */
+                min-width: 20; 
             }
             .info-panel p {
-                font-size: 0.9em; /* 在小螢幕上略減字體大小 */
-                white-space: normal; /* 小螢幕允許換行以適應窄容器 */
+                font-size: 0.9em; 
+                white-space: normal; 
             }
         }
     </style>
@@ -171,19 +171,19 @@
                 .then(data => {
                     const number = data.currentNumber;
                     
-                    // 智慧狀態判斷
-                    if (isNaN(number) || number === null || number === "") { // 如果是文字
+                    
+                    if (isNaN(number) || number === null || number === "") { 
                         numberDisplay.textContent = number;
                         numberDisplay.classList.add('small-text');
-                    } else if (number == 0) { // 如果是數字 0
+                    } else if (number == 0) { 
                         numberDisplay.textContent = "活動尚未開始";
                         numberDisplay.classList.add('small-text');
-                    } else { // 如果是正常數字
+                    } else { 
                         numberDisplay.textContent = number;
                         numberDisplay.classList.remove('small-text');
                     }
                     
-                    // 更新時間戳
+                   
                     lastUpdated.textContent = new Date().toLocaleTimeString('zh-TW');
                 })
                 .catch(error => {
@@ -194,9 +194,9 @@
                 });
         }
 
-        // 網頁載入後馬上執行一次
+        
         fetchNumber();
-        // 然後設定每 10 秒執行一次
+        
         setInterval(fetchNumber, 10000);
     </script>
 </body>
