@@ -86,12 +86,14 @@
             padding: 15px;
             margin-top: 25px;
             text-align: left;
+            min-width: 200px; /* 確保容器有足夠寬度 */
         }
 
         .info-panel p {
             margin: 8px 0;
             font-size: 0.95em;
             color: #555;
+            white-space: nowrap; /* 防止文字換行 */
         }
         
         .info-panel strong {
@@ -117,6 +119,13 @@
             #number-display.small-text {
                 font-size: 2em;
             }
+            .info-panel {
+                min-width: 20; /* 在小螢幕上移除最小寬度限制 */
+            }
+            .info-panel p {
+                font-size: 0.9em; /* 在小螢幕上略減字體大小 */
+                white-space: normal; /* 小螢幕允許換行以適應窄容器 */
+            }
         }
     </style>
 </head>
@@ -135,10 +144,10 @@
         </div>
         
         <div class="info-panel">
-            <p><strong>📅 日期：</strong> 114/07/24 (四)</p>
+            <p><strong>📅 日期：</strong> 114 / 07 / 24 </p>
             <p><strong>⏰ 時間：</strong> 10:00 - 16:00</p>
             <p><strong>📍 地點：</strong> 公司一樓大廳外</p>
-            <p><strong>主辦：</strong> 茂達電子福委會</p>
+            <p><strong>🦔主辦：</strong> 茂達電子 福委會</p>
         </div>
 
         <footer>
@@ -154,7 +163,9 @@
         function fetchNumber() {
             fetch(dataUrl, { cache: 'no-cache' })
                 .then(response => {
-                    if (!response.ok) throw new Error('Network response was not ok');
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
                     return response.json();
                 })
                 .then(data => {
@@ -165,7 +176,7 @@
                         numberDisplay.textContent = number;
                         numberDisplay.classList.add('small-text');
                     } else if (number == 0) { // 如果是數字 0
-                        numberDisplay.textContent = "尚未開始";
+                        numberDisplay.textContent = "活動尚未開始";
                         numberDisplay.classList.add('small-text');
                     } else { // 如果是正常數字
                         numberDisplay.textContent = number;
