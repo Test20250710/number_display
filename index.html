@@ -3,13 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>茂達電子-捐血活動即時叫號</title>
+    <title>茂達電子 - 捐血活動即時叫號</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap');
 
         :root {
-            --primary-color: #005a9e;
-            --accent-color: #d9232d; 
+            --primary-color: #005a9e; /* 茂達Logo藍色 (近似) */
+            --accent-color: #d9232d;  /* 捐血紅色 */
             --text-color: #333;
             --light-gray: #f4f7f9;
             --border-color: #e0e0e0;
@@ -76,7 +76,7 @@
         }
 
         #number-display.small-text {
-            font-size: 2.5em; 
+            font-size: 2.5em; /* 狀態文字使用較小字體 */
             color: #555;
         }
         
@@ -86,14 +86,12 @@
             padding: 15px;
             margin-top: 25px;
             text-align: left;
-            min-width: 200px; 
         }
 
         .info-panel p {
             margin: 8px 0;
             font-size: 0.95em;
             color: #555;
-            white-space: nowrap; 
         }
         
         .info-panel strong {
@@ -120,11 +118,11 @@
                 font-size: 2em;
             }
             .info-panel {
-                min-width: 0; 
+                min-width: 0; /* 在小螢幕上移除最小寬度限制 */
             }
             .info-panel p {
-                font-size: 0.9em; 
-                white-space: normal; 
+                font-size: 0.9em; /* 在小螢幕上略減字體大小 */
+                white-space: normal; /* 小螢幕允許換行以適應窄容器 */
             }
         }
     </style>
@@ -151,7 +149,7 @@
         </div>
 
         <footer>
-            <p>最後更新時間：<span id="last-updated">尚未更新</span></p>
+            <p>更新於：<span id="last-updated">讀取中...</span></p>
         </footer>
     </div>
 
@@ -160,43 +158,59 @@
         const lastUpdated = document.getElementById('last-updated');
         const dataUrl = 'number.json';
 
-        function fetchNumber() {
-            fetch(dataUrl, { cache: 'no-cache' })
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
-                    return response.json();
-                })
-                .then(data => {
-                    const number = data.currentNumber;
-                    
-                    
-                    if (isNaN(number) || number === null || number === "") { 
-                        numberDisplay.textContent = number;
-                        numberDisplay.classList.add('small-text');
-                    } else if (number == 0) { 
-                        numberDisplay.textContent = "活動尚未開始";
-                        numberDisplay.classList.add('small-text');
-                    } else { 
-                        numberDisplay.textContent = number;
-                        numberDisplay.classList.remove('small-text');
-                    }
-                    
-                   
-                    lastUpdated.textContent = new Date().toLocaleTimeString('zh-TW');
-                })
-                .catch(error => {
-                    console.error('讀取號碼失敗:', error);
-                    numberDisplay.textContent = '讀取失敗';
+        async function fetchNumber() {
+            try {
+                const response = await fetch(dataUrl, { cache: 'no-cache' });
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                const number = data.currentNumber;
+                const timestamp = data.lastUpdatedTimestamp; // Get the timestamp from JSON
+
+                // Update number display
+                if (typeof number === 'string' && (isNaN(number) || number === "" || number === null)) {
+                    numberDisplay.textContent = number;
                     numberDisplay.classList.add('small-text');
-                    lastUpdated.textContent = '更新失敗';
-                });
+                } else if (parseInt(number, 10) === 0) {
+                    numberDisplay.textContent = "活動尚未開始";
+                    numberDisplay.classList.add('small-text');
+                } else {
+                    numberDisplay.textContent = number;
+                    numberDisplay.classList.remove('small-text');
+                }
+                
+                // Update timestamp display using the timestamp from JSON
+                if (timestamp) {
+                    const date = new Date(timestamp);
+                    // Format to YYYY/MM/DD HH:MM:SS for clarity
+                    const formattedDate = date.toLocaleDateString('zh-TW', {
+                        year: 'numeric',
+                        month: '2-digit',
+                        day: '2-digit'
+                    }).replace(/\//g, '/'); // Ensure consistent slashes
+                    const formattedTime = date.toLocaleTimeString('zh-TW', {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        second: '2-digit',
+                        hour12: false // Use 24-hour format
+                    });
+                    lastUpdated.textContent = `${formattedDate} ${formattedTime}`;
+                } else {
+                    lastUpdated.textContent = '時間資訊缺失';
+                }
+
+            } catch (error) {
+                console.error('讀取號碼失敗:', error);
+                numberDisplay.textContent = '讀取失敗';
+                numberDisplay.classList.add('small-text');
+                lastUpdated.textContent = '更新失敗';
+            }
         }
 
-        
+        // Fetch number immediately on page load
         fetchNumber();
-        
+        // Set up interval to fetch number every 10 seconds
         setInterval(fetchNumber, 10000);
     </script>
 </body>
