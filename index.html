@@ -159,51 +159,68 @@
         const numberDisplay = document.getElementById('number-display');
         const lastUpdated = document.getElementById('last-updated');
         const dataUrl = 'number.json';
+        const storageKey = 'anewtech_blood_drive_status';
 
-        let lastKnownNumber = null;
+        function updateDisplay(data) {
+            if (!data || data.number === undefined || data.time === undefined) {
+                numberDisplay.textContent = '讀取中...';
+                lastUpdated.textContent = '尚未更新';
+                return;
+            }
+            
+            const number = data.number;
+
+            if (isNaN(number) || number === null || number === "") {
+                numberDisplay.textContent = number;
+                numberDisplay.classList.add('small-text');
+            } else if (number == 0) {
+                numberDisplay.textContent = "活動尚未開始";
+                numberDisplay.classList.add('small-text');
+            } else {
+                numberDisplay.textContent = number;
+                numberDisplay.classList.remove('small-text');
+            }
+            lastUpdated.textContent = data.time;
+        }
+
+        try {
+            const storedData = JSON.parse(sessionStorage.getItem(storageKey));
+            updateDisplay(storedData);
+        } catch (e) {
+            console.warn("無法從 sessionStorage 讀取資料。");
+        }
+
 
         function fetchNumber() {
+            const storedData = JSON.parse(sessionStorage.getItem(storageKey)) || {};
+            const lastKnownNumber = storedData.number;
+
             fetch(dataUrl, { cache: 'no-cache' })
                 .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Network response was not ok');
-                    }
+                    if (!response.ok) throw new Error('Network response was not ok');
                     return response.json();
                 })
                 .then(data => {
                     const newNumber = data.currentNumber;
 
                     if (newNumber !== lastKnownNumber) {
+                        console.log(`號碼變更！舊號碼: ${lastKnownNumber}, 新號碼: ${newNumber}`);
+
+                        const newTime = new Date().toLocaleTimeString('zh-TW');
                         
-                        console.log(`號碼變更！舊號碼: ${lastKnownNumber}, 新號碼: ${newNumber}`); 
+                        const newData = { number: newNumber, time: newTime };
 
-                        if (isNaN(newNumber) || newNumber === null || newNumber === "") {
-                            numberDisplay.textContent = newNumber;
-                            numberDisplay.classList.add('small-text');
-                        } else if (newNumber == 0) {
-                            numberDisplay.textContent = "活動尚未開始";
-                            numberDisplay.classList.add('small-text');
-                        } else {
-                            numberDisplay.textContent = newNumber;
-                            numberDisplay.classList.remove('small-text');
-                        }
-                        
+                        updateDisplay(newData);
 
-                        lastUpdated.textContent = new Date().toLocaleTimeString('zh-TW');
-
-                        lastKnownNumber = newNumber;
+                        sessionStorage.setItem(storageKey, JSON.stringify(newData));
                     }
+
                 })
                 .catch(error => {
-
                     console.error('讀取號碼失敗:', error);
-                    const errorMessage = '讀取失敗';
-
-                    if (numberDisplay.textContent !== errorMessage) {
-                        numberDisplay.textContent = errorMessage;
-                        numberDisplay.classList.add('small-text');
-                        lastUpdated.textContent = '更新失敗';
-                    }
+                    numberDisplay.textContent = '讀取失敗';
+                    numberDisplay.classList.add('small-text');
+                    lastUpdated.textContent = '更新失敗';
                 });
         }
 
